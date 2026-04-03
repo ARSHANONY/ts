@@ -1,24 +1,769 @@
-try{if(localStorage.get("__framer_force_showing_editorbar_since")){const n=document.createElement("link");n.rel = "modulepreload";n.href="https://framer.com/edit/init.mjs";document.head.appendChild(n)}}catch(e){}
+const AppState = {
+    currentLang: 'en',
+    currentTheme: 'dark',
+    currentSection: 'home',
+    isMenuOpen: false,
+    isLoaded: false
+};
 
-// External script: https://events.framer.com/script?v=2
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+});
 
-(()=>{function u(){function n(t,e,i){let r=document.createElement("a");r.href=t,r.target=i,r.rel=e,document.body.appendChild(r),r.click(),r.remove()}function o(t){if(this.dataset.hydrated){this.removeEventListener("click",o);return}t.preventDefault(),t.stopPropagation();let e=this.getAttribute("href");if(!e)return;if(/Mac|iPod|iPhone|iPad/u.test(navigator.userAgent)?t.metaKey:t.ctrlKey)return n(e,"","_blank");let r=this.getAttribute("rel")??"",c=this.getAttribute("target")??"";n(e,r,c)}function a(t){if(this.dataset.hydrated){this.removeEventListener("auxclick",o);return}t.preventDefault(),t.stopPropagation();let e=this.getAttribute("href");e&&n(e,"","_blank")}function s(t){if(this.dataset.hydrated){this.removeEventListener("keydown",s);return}if(t.key!=="Enter")return;t.preventDefault(),t.stopPropagation();let e=this.getAttribute("href");if(!e)return;let i=this.getAttribute("rel")??"",r=this.getAttribute("target")??"";n(e,i,r)}document.querySelectorAll("[data-nested-link]").forEach(t=>{t instanceof HTMLElement&&(t.addEventListener("click",o),t.addEventListener("auxclick",a),t.addEventListener("keydown",s))})}return u})()()
+function initializeApp() {
+    loadPreferences();
+    initLanguage();
+    initTheme();
+    initNavigation();
+    initScrollEffects();
+    initFormHandlers();
+    initMobileMenu();
+    updateLanguageUI();
+    updateThemeUI();
+    AppState.isLoaded = true;
+}
 
-!function(){var w="framer_variant";function u(a,r){let e=r.indexOf("#"),t=e===-1?r:r.substring(0,e),o=e===-1?"":r.substring(e),n=t.indexOf("?"),h=n===-1?t:t.substring(0,n),d=n===-1?"":t.substring(n),s=new URLSearchParams(d),m=new URLSearchParams(a);for(let[i,l]of m)s.has(i)||i!==w&&s.append(i,l);let c=s.toString();return c===""?t+o:h+"?"+c+o}var g='div#main a[href^="#"],div#main a[href^="/"],div#main a[href^="."]',f="div#main a[data-framer-preserve-params]",S=document.currentScript?.hasAttribute("data-preserve-internal-params");if(window.location.search&&!navigator.webdriver&&!/bot|-google|google-|yandex|ia_archiver|crawl|spider/iu.test(navigator.userAgent)){let a=document.querySelectorAll(S?`${g},${f}`:f);for(let r of a){let e=u(window.location.search,r.href);r.setAttribute("href",e)}}
-}()
+function loadPreferences() {
+    const savedLang = localStorage.getItem('portfolio-lang');
+    const savedTheme = localStorage.getItem('portfolio-theme');
+    if (savedLang) AppState.currentLang = savedLang;
+    if (savedTheme) AppState.currentTheme = savedTheme;
+}
 
-var animator=(()=>{var O=(e,r,t)=>t>r?r:t<e?e:t;var j=()=>{};function W(e){let r;return()=>(r===void 0&&(r=e()),r)}var q=e=>e;var v=e=>e*1e3,V=e=>e/1e3;function X(e,r){return r?e*(1e3/r):0}var Y=e=>Array.isArray(e)&&typeof e[0]=="number";var H={value:null,addProjectionMetrics:null};var Z={layout:0,mainThread:0,waapi:0};var L=(e,r,t=10)=>{let o="",s=Math.max(Math.round(r/t),2);for(let n=0;n<s;n++)o+=Math.round(e(n/(s-1))*1e4)/1e4+", ";return`linear(${o.substring(0,o.length-2)})`};function R(e){let r=0,t=50,o=e.next(r);for(;!o.done&&r<2e4;)r+=t,o=e.next(r);return r>=2e4?1/0:r}function fe(e,r=100,t){let o=t({...e,keyframes:[0,r]}),s=Math.min(R(o),2e4);return{type:"keyframes",ease:n=>o.next(s*n).value/r,duration:V(s)}}var Ee=5;function ce(e,r,t){let o=Math.max(r-Ee,0);return X(t-e(o),r-o)}var u={stiffness:100,damping:10,mass:1,velocity:0,duration:800,bounce:.3,visualDuration:.3,restSpeed:{granular:.01,default:2},restDelta:{granular:.005,default:.5},minDuration:.01,maxDuration:10,minDamping:.05,maxDamping:1};var _=.001;function le({duration:e=u.duration,bounce:r=u.bounce,velocity:t=u.velocity,mass:o=u.mass}){let s,n;j(e<=v(u.maxDuration),"Spring duration must be 10 seconds or less","spring-duration-limit");let i=1-r;i=O(u.minDamping,u.maxDamping,i),e=O(u.minDuration,u.maxDuration,V(e)),i<1?(s=m=>{let p=m*i,c=p*e,l=p-t,x=z(m,i),g=Math.exp(-c);return _-l/x*g},n=m=>{let c=m*i*e,l=c*t+t,x=Math.pow(i,2)*Math.pow(m,2)*e,g=Math.exp(-c),y=z(Math.pow(m,2),i);return(-s(m)+_>0?-1:1)*((l-x)*g)/y}):(s=m=>{let p=Math.exp(-m*e),c=(m-t)*e+1;return-_+p*c},n=m=>{let p=Math.exp(-m*e),c=(t-m)*(e*e);return p*c});let f=5/e,a=Ce(s,n,f);if(e=v(e),isNaN(a))return{stiffness:u.stiffness,damping:u.damping,duration:e};{let m=Math.pow(a,2)*o;return{stiffness:m,damping:i*2*Math.sqrt(o*m),duration:e}}}var ke=12;function Ce(e,r,t){let o=t;for(let s=1;s<ke;s++)o=o-e(o)/r(o);return o}function z(e,r){return e*Math.sqrt(1-r*r)}var Be=["duration","bounce"],Ie=["stiffness","damping","mass"];function ue(e,r){return r.some(t=>e[t]!==void 0)}function Ke(e){let r={velocity:u.velocity,stiffness:u.stiffness,damping:u.damping,mass:u.mass,isResolvedFromDuration:!1,...e};if(!ue(e,Ie)&&ue(e,Be))if(r.velocity=0,e.visualDuration){let t=e.visualDuration,o=2*Math.PI/(t*1.2),s=o*o,n=2*O(.05,1,1-(e.bounce||0))*Math.sqrt(s);r={...r,mass:u.mass,stiffness:s,damping:n}}else{let t=le({...e,velocity:0});r={...r,...t,mass:u.mass},r.isResolvedFromDuration=!0}return r}function D(e=u.visualDuration,r=u.bounce){let t=typeof e!="object"?{visualDuration:e,keyframes:[0,1],bounce:r}:e,{restSpeed:o,restDelta:s}=t,n=t.keyframes[0],i=t.keyframes[t.keyframes.length-1],f={done:!1,value:n},{stiffness:a,damping:m,mass:p,duration:c,velocity:l,isResolvedFromDuration:x}=Ke({...t,velocity:-V(t.velocity||0)}),g=l||0,y=m/(2*Math.sqrt(a*p)),T=i-n,h=V(Math.sqrt(a/p)),K=Math.abs(T)<5;o||(o=K?u.restSpeed.granular:u.restSpeed.default),s||(s=K?u.restDelta.granular:u.restDelta.default);let S;if(y<1){let d=z(h,y);S=A=>{let b=Math.exp(-y*h*A);return i-b*((g+y*h*T)/d*Math.sin(d*A)+T*Math.cos(d*A))}}else if(y===1)S=d=>i-Math.exp(-h*d)*(T+(g+h*T)*d);else{let d=h*Math.sqrt(y*y-1);S=A=>{let b=Math.exp(-y*h*A),G=Math.min(d*A,300);return i-b*((g+y*h*T)*Math.sinh(G)+d*T*Math.cosh(G))/d}}let P={calculatedDuration:x&&c||null,next:d=>{let A=S(d);if(x)f.done=d>=c;else{let b=d===0?g:0;y<1&&(b=d===0?v(g):ce(S,d,A));let G=Math.abs(b)<=o,Oe=Math.abs(i-A)<=s;f.done=G&&Oe}return f.value=f.done?i:A,f},toString:()=>{let d=Math.min(R(P),2e4),A=L(b=>P.next(d*b).value,d,30);return d+"ms "+A},toTransition:()=>{}};return P}D.applyToOptions=e=>{let r=fe(e,100,D);return e.ease=r.ease,e.duration=v(r.duration),e.type="keyframes",e};var xe=["transformPerspective","x","y","z","translateX","translateY","translateZ","scale","scaleX","scaleY","rotate","rotateX","rotateY","rotateZ","skew","skewX","skewY"],Q=new Set(xe);var de={};function ge(e,r){let t=W(e);return()=>de[r]??t()}var ye=ge(()=>{try{document.createElement("div").animate({opacity:0},{easing:"linear(0, 1)"})}catch{return!1}return!0},"linearEasing");var w=([e,r,t,o])=>`cubic-bezier(${e}, ${r}, ${t}, ${o})`;var J={linear:"linear",ease:"ease",easeIn:"ease-in",easeOut:"ease-out",easeInOut:"ease-in-out",circIn:w([0,.65,.55,1]),circOut:w([.55,0,1,.45]),backIn:w([.31,.01,.66,-.59]),backOut:w([.33,1.53,.69,.99])};function ee(e,r){if(e)return typeof e=="function"?ye()?L(e,r):"ease-out":Y(e)?w(e):Array.isArray(e)?e.map(t=>ee(t,r)||J.easeOut):J[e]}function F(e,r,t,{delay:o=0,duration:s=300,repeat:n=0,repeatType:i="loop",ease:f="easeOut",times:a}={},m=void 0){let p={[r]:t};a&&(p.offset=a);let c=ee(f,s);Array.isArray(c)&&(p.easing=c),H.value&&Z.waapi++;let l={delay:o,duration:s,easing:Array.isArray(c)?"linear":c,fill:"both",iterations:n+1,direction:i==="reverse"?"alternate":"normal"};m&&(l.pseudoElement=m);let x=e.animate(p,l);return H.value&&x.finished.finally(()=>{Z.waapi--}),x}function Ae(e){return e.replace(/([A-Z])/g,r=>`-${r.toLowerCase()}`)}var N="framerAppearId",re="data-"+Ae(N);function te(e){return e.props[re]}var M=new Map,E=new Map;var k=(e,r)=>{let t=Q.has(r)?"transform":r;return`${e}: ${t}`};function oe(e,r,t){let o=k(e,r),s=M.get(o);if(!s)return null;let{animation:n,startTime:i}=s;function f(){window.MotionCancelOptimisedAnimation?.(e,r,t)}return n.onfinish=f,i===null||window.MotionHandoffIsComplete?.(e)?(f(),null):i}var $,C,ne=new Set;function Ge(){ne.forEach(e=>{e.animation.play(),e.animation.startTime=e.startTime}),ne.clear()}function ie(e,r,t,o,s){if(window.MotionIsMounted)return;let n=e.dataset[N];if(!n)return;window.MotionHandoffAnimation=oe;let i=k(n,r);C||(C=F(e,r,[t[0],t[0]],{duration:1e4,ease:"linear"}),M.set(i,{animation:C,startTime:null}),window.MotionHandoffAnimation=oe,window.MotionHasOptimisedAnimation=(a,m)=>{if(!a)return!1;if(!m)return E.has(a);let p=k(a,m);return!!M.get(p)},window.MotionHandoffMarkAsComplete=a=>{E.has(a)&&E.set(a,!0)},window.MotionHandoffIsComplete=a=>E.get(a)===!0,window.MotionCancelOptimisedAnimation=(a,m,p,c)=>{let l=k(a,m),x=M.get(l);x&&(p&&c===void 0?p.postRender(()=>{p.postRender(()=>{x.animation.cancel()})}):x.animation.cancel(),p&&c?(ne.add(x),p.render(Ge)):(M.delete(l),M.size||(window.MotionCancelOptimisedAnimation=void 0)))},window.MotionCheckAppearSync=(a,m,p)=>{let c=te(a);if(!c)return;let l=window.MotionHasOptimisedAnimation?.(c,m),x=a.props.values?.[m];if(!l||!x)return;let g=p.on("change",y=>{x.get()!==y&&(window.MotionCancelOptimisedAnimation?.(c,m),g())});return g});let f=()=>{C.cancel();let a=F(e,r,t,o);$===void 0&&($=performance.now()),a.startTime=$,M.set(i,{animation:a,startTime:$}),s&&s(a)};E.set(n,!1),C.ready?C.ready.then(f).catch(q):f()}var ae=["transformPerspective","x","y","z","translateX","translateY","translateZ","scale","scaleX","scaleY","rotate","rotateX","rotateY","rotateZ","skew","skewX","skewY"],Le={x:"translateX",y:"translateY",z:"translateZ",transformPerspective:"perspective"},Re={translateX:"px",translateY:"px",translateZ:"px",x:"px",y:"px",z:"px",perspective:"px",transformPerspective:"px",rotate:"deg",rotateX:"deg",rotateY:"deg"};function Te(e,r){let t=Re[e];return!t||typeof r=="string"&&r.endsWith(t)?r:`${r}${t}`}function se(e){return ae.includes(e)}var ze=(e,r)=>ae.indexOf(e)-ae.indexOf(r);function he({transform:e,transformKeys:r},t){let o={},s=!0,n="";r.sort(ze);for(let i of r){let f=e[i],a=!0;typeof f=="number"?a=f===(i.startsWith("scale")?1:0):a=parseFloat(f)===0,a||(s=!1,n+=`${Le[i]||i}(${e[i]}) `),t&&(o[i]=e[i])}return n=n.trim(),t?n=t(o,n):s&&(n="none"),n}function pe(e,r){let t=new Set(Object.keys(e));for(let o in r)t.add(o);return Array.from(t)}function me(e,r){let t=r-e.length;if(t<=0)return e;let o=new Array(t).fill(e[e.length-1]);return e.concat(o)}function B(e){return e*1e3}var be={duration:.001},I={opacity:1,scale:1,translateX:0,translateY:0,translateZ:0,x:0,y:0,z:0,rotate:0,rotateX:0,rotateY:0};function Ve(e,r,t,o,s){return t.delay&&(t.delay=B(t.delay)),t.type==="spring"?Ne(e,r,t,o,s):je(e,r,t,o,s)}function Fe(e,r,t){let o={},s=0,n=0;for(let i of pe(e,r)){let f=e[i]??I[i],a=r[i]??I[i];if(f===void 0||a===void 0||i!=="transformPerspective"&&f===a&&f===I[i])continue;i==="transformPerspective"&&(o[i]=[f,a]);let m=He(f,a,t),{duration:p,keyframes:c}=m;p===void 0||c===void 0||(p>s&&(s=p,n=c.length),o[i]=c)}return{keyframeValuesByProps:o,longestDuration:s,longestLength:n}}function Ne(e,r,t,o,s){let n={},{keyframeValuesByProps:i,longestDuration:f,longestLength:a}=Fe(e,r,t);if(!a)return n;let m={ease:"linear",duration:f,delay:t.delay},p=s?be:m,c={};for(let[x,g]of Object.entries(i))se(x)?c[x]=me(g,a):n[x]={keyframes:me(g,a),options:x==="opacity"?m:p};let l=De(c,o);return l&&(n.transform={keyframes:l,options:p}),n}function $e(e){let{type:r,duration:t,...o}=e;return{duration:B(t),...o}}function je(e,r,t,o,s){let n=$e(t);if(!n)return;let i={},f=s?be:n,a={};for(let p of pe(e,r)){let c=e[p]??I[p],l=r[p]??I[p];c===void 0||l===void 0||p!=="transformPerspective"&&c===l||(se(p)?a[p]=[c,l]:i[p]={keyframes:[c,l],options:p==="opacity"?n:f})}let m=De(a,o);return m&&(i.transform={keyframes:m,options:f}),i}var We=["duration","bounce"],qe=["stiffness","damping","mass"];function ve(e){return qe.some(r=>r in e)?!1:We.some(r=>r in e)}function Xe(e,r,t){return ve(t)?`${e}-${r}-${t.duration}-${t.bounce}`:`${e}-${r}-${t.damping}-${t.stiffness}-${t.mass}`}function Ye(e){return ve(e)?{...e,duration:B(e.duration)}:e}var Me=new Map,Se=10;function He(e,r,t){let o=Xe(e,r,t),s=Me.get(o);if(s)return s;let n=[e,r],i=D({...Ye(t),keyframes:n}),f={done:!1,value:n[0]},a=[],m=0;for(;!f.done&&m<B(10);)f=i.next(m),a.push(f.value),m+=Se;n=a;let p=m-Se,l={keyframes:n,duration:p,ease:"linear"};return Me.set(o,l),l}function De(e,r){let t=[],o=Object.values(e)[0]?.length;if(!o)return;let s=Object.keys(e);for(let n=0;n<o;n++){let i={};for(let[a,m]of Object.entries(e)){let p=m[n];p!==void 0&&(i[a]=Te(a,p))}let f=he({transform:i,transformKeys:s},r);t.push(f)}return t}function Ze(e,r){if(!r)for(let t in e){let o=e[t];return o?.legacy===!0?o:void 0}}function we(e,r,t,o,s,n){for(let[i,f]of Object.entries(e)){let a=n?f[n]:void 0;if(a===null||!a&&f.default===null)continue;let m=a??f.default??Ze(f,n);if(!m)continue;let{initial:p,animate:c,transformTemplate:l}=m;if(!p||!c)continue;let{transition:x,...g}=c,y=Ve(p,g,x,Ue(l,o),s);if(!y)continue;let T={},h={};for(let[S,P]of Object.entries(y))T[S]=P.keyframes,h[S]=P.options;let K=n?`:not(.hidden-${n}) `:"";r(`${K}[${t}="${i}"]`,T,h)}}function Ue(e,r){if(!(!e||!r))return(t,o)=>e.replace(r,o)}function Pe(e){return e?e.find(t=>t.mediaQuery?window.matchMedia(t.mediaQuery).matches===!0:!1)?.hash:void 0}var zt={animateAppearEffects:we,getActiveVariantHash:Pe,spring:D,startOptimizedAppearAnimation:ie};return zt})()
+function initLanguage() {
+    const langToggle = document.getElementById('langToggle');
+    if (langToggle) {
+        langToggle.addEventListener('click', toggleLanguage);
+    }
+    setLanguage(AppState.currentLang);
+}
 
-{"8yjb6g":{"default":{"initial":{"opacity":0.001,"rotate":0,"rotateX":0,"rotateY":0,"scale":1,"skewX":0,"skewY":0,"x":0,"y":0},"animate":{"opacity":1,"rotate":0,"rotateX":0,"rotateY":0,"scale":1,"skewX":0,"skewY":0,"transition":{"damping":30,"delay":1.2,"mass":1,"stiffness":400,"type":"spring"},"x":0,"y":0}},"5ncifs":{"initial":{"opacity":0.001,"rotate":0,"rotateX":0,"rotateY":0,"scale":1,"skewX":0,"skewY":0,"x":0,"y":0},"animate":{"opacity":1,"rotate":0,"rotateX":0,"rotateY":0,"scale":1,"skewX":0,"skewY":0,"transition":{"damping":30,"delay":1.2,"mass":1,"stiffness":400,"type":"spring"},"x":0,"y":0}},"5tsea6":{"initial":{"opacity":0.001,"rotate":0,"rotateX":0,"rotateY":0,"scale":1,"skewX":0,"skewY":0,"x":0,"y":0},"animate":{"opacity":1,"rotate":0,"rotateX":0,"rotateY":0,"scale":1,"skewX":0,"skewY":0,"transition":{"damping":30,"delay":1.2,"mass":1,"stiffness":400,"type":"spring"},"x":0,"y":0}}}}
+function toggleLanguage() {
+    const newLang = AppState.currentLang === 'en' ? 'ar' : 'en';
+    setLanguage(newLang);
+    localStorage.setItem('portfolio-lang', newLang);
+}
 
-[{"hash":"72rtr7","mediaQuery":"(min-width: 1200px)"},{"hash":"5tsea6","mediaQuery":"(min-width: 471px) and (max-width: 1199.98px)"},{"hash":"5ncifs","mediaQuery":"(max-width: 470.98px)"}]
+function setLanguage(lang) {
+    AppState.currentLang = lang;
+    const html = document.documentElement;
+    const body = document.body;
+    
+    if (lang === 'ar') {
+        html.setAttribute('lang', 'ar');
+        html.setAttribute('dir', 'rtl');
+        body.setAttribute('data-lang', 'ar');
+        body.setAttribute('data-dir', 'rtl');
+    } else {
+        html.setAttribute('lang', 'en');
+        html.setAttribute('dir', 'ltr');
+        body.setAttribute('data-lang', 'en');
+        body.setAttribute('data-dir', 'ltr');
+    }
+    updateLanguageUI();
+}
 
-(()=>{function c(i,o,s){if(window.__framer_disable_appear_effects_optimization__||typeof animator>"u")return;let e={detail:{bg:document.hidden}};requestAnimationFrame(()=>{let a="framer-appear-start";performance.mark(a,e),animator.animateAppearEffects(JSON.parse(window.__framer__appearAnimationsContent.text),(m,p,d)=>{let t=document.querySelector(m);if(t)for(let[r,f]of Object.entries(p))animator.startOptimizedAppearAnimation(t,r,f,d[r])},i,o,s&&window.matchMedia("(prefers-reduced-motion:reduce)").matches===!0,animator.getActiveVariantHash(JSON.parse(window.__framer__breakpoints.text)));let n="framer-appear-end";performance.mark(n,e),performance.measure("framer-appear",{start:a,end:n,detail:e.detail})})}return c})()("data-framer-appear-id","__Appear_Animation_Transform__",true)
+function updateLanguageUI() {
+    const textElements = document.querySelectorAll('[data-text-en], [data-text-ar]');
+    textElements.forEach(element => {
+        const enText = element.getAttribute('data-text-en');
+        const arText = element.getAttribute('data-text-ar');
+        if (AppState.currentLang === 'ar' && arText) {
+            element.textContent = arText;
+        } else if (AppState.currentLang === 'en' && enText) {
+            element.textContent = enText;
+        }
+    });
+    
+    const placeholderElements = document.querySelectorAll('[data-placeholder-en], [data-placeholder-ar]');
+    placeholderElements.forEach(element => {
+        const enPlaceholder = element.getAttribute('data-placeholder-en');
+        const arPlaceholder = element.getAttribute('data-placeholder-ar');
+        if (AppState.currentLang === 'ar' && arPlaceholder) {
+            element.setAttribute('placeholder', arPlaceholder);
+        } else if (AppState.currentLang === 'en' && enPlaceholder) {
+            element.setAttribute('placeholder', enPlaceholder);
+        }
+    });
+    
+    const langToggle = document.getElementById('langToggle');
+    if (langToggle) {
+        const langText = langToggle.querySelector('.lang-text');
+        if (langText) {
+            langText.textContent = AppState.currentLang === 'en' ? 'AR' : 'EN';
+        }
+    }
+}
 
-(()=>{function d(e){let t=Date.prototype.toLocaleString,o=Date.prototype.toLocaleDateString;t&&(Date.prototype.toLocaleString=function(r,n){let i=s(this,r,n);return u(e.current.Date.toLocaleString,i,()=>t.call(this,r,n))}),o&&(Date.prototype.toLocaleDateString=function(r,n){let i=s(this,r,n);return u(e.current.Date.toLocaleDateString,i,()=>o.call(this,r,n))});let a=Object.getOwnPropertyDescriptors(Intl.DateTimeFormat.prototype).format.get,c=Intl.DateTimeFormat.prototype.formatRange,b=Intl.DateTimeFormat.prototype.formatToParts,D=Intl.DateTimeFormat.prototype.formatRangeToParts;a&&Object.defineProperty(Intl.DateTimeFormat.prototype,"format",{get(){function m(r){let n=p(this),i=s(r,n);return u(e.current.DateTimeFormat.format,i,()=>a.call(this)(r))}return m.bind(this)}}),c&&(Intl.DateTimeFormat.prototype.formatRange=function(r,n){let i=p(this),l=s(r,n,i);return u(e.current.DateTimeFormat.formatRange,l,()=>c.call(this,r,n))}),b&&(Intl.DateTimeFormat.prototype.formatToParts=function(r){let n=p(this),i=s(r,n);return u(e.current.DateTimeFormat.formatToParts,i,()=>b.call(this,r)).map(g)}),D&&(Intl.DateTimeFormat.prototype.formatRangeToParts=function(r,n){let i=p(this),l=s(r,n,i);return u(e.current.DateTimeFormat.formatRangeToParts,l,()=>D.call(this,r,n)).map(g)});let y=Number.prototype.toLocaleString;y&&(Number.prototype.toLocaleString=function(r,n){let i=s(this,r,n);return u(e.current.Number.toLocaleString,i,()=>y.call(this,r,n))});let h=Object.getOwnPropertyDescriptors(Intl.NumberFormat.prototype).format.get,F=Intl.NumberFormat.prototype.formatRange,T=Intl.NumberFormat.prototype.formatToParts,I=Intl.NumberFormat.prototype.formatRangeToParts;h&&Object.defineProperty(Intl.NumberFormat.prototype,"format",{get(){function m(r){let n=f(this),i=s(r,n);return u(e.current.NumberFormat.format,i,()=>h.call(this)(r))}return m.bind(this)}}),F&&(Intl.NumberFormat.prototype.formatRange=function(r,n){let i=f(this),l=s(r,n,i);return u(e.current.NumberFormat.formatRange,l,()=>F.call(this,r,n))}),T&&(Intl.NumberFormat.prototype.formatToParts=function(r){let n=f(this),i=s(r,n);return u(e.current.NumberFormat.formatToParts,i,()=>T.call(this,r)).map(g)}),I&&(Intl.NumberFormat.prototype.formatRangeToParts=function(r,n){let i=f(this),l=s(r,n,i);return u(e.current.NumberFormat.formatRangeToParts,l,()=>I.call(this,r,n)).map(g)})}function P(e,t){return typeof t=="bigint"?`${t}n`:t instanceof Date?t.getTime():t}function s(...e){let t=JSON.stringify(e,P),o=0;for(let a=0;a<t.length;a++)o+=t.charCodeAt(a),o+=o<<10,o^=o>>6;return o+=o<<3,o^=o>>11,o+=o<<15,o>>>0}function u(e,t,o){let a=e[t];if(typeof a<"u")return a;let c=o();return e[t]=c,c}function g(e){return{...e}}function p(e){let t=e.resolvedOptions(),o={locale:t.locale,calendar:t.calendar,numberingSystem:t.numberingSystem,timeZone:t.timeZone,hour12:t.hour12,weekday:t.weekday,era:t.era,year:t.year,month:t.month,day:t.day,hour:t.hour,minute:t.minute,second:t.second,timeZoneName:t.timeZoneName};for(let a in t)a in o||(o[a]=t[a]);return o}function f(e){let t=e.resolvedOptions(),o={locale:t.locale,numberingSystem:t.numberingSystem,style:t.style,currency:t.currency,currencyDisplay:t.currencyDisplay,currencySign:t.currencySign,unit:t.unit,unitDisplay:t.unitDisplay,minimumIntegerDigits:t.minimumIntegerDigits,minimumFractionDigits:t.minimumFractionDigits,maximumFractionDigits:t.maximumFractionDigits,minimumSignificantDigits:t.minimumSignificantDigits,maximumSignificantDigits:t.maximumSignificantDigits,useGrouping:t.useGrouping===!0?"auto":t.useGrouping,notation:t.notation,compactDisplay:t.compactDisplay,signDisplay:t.signDisplay,roundingIncrement:t.roundingIncrement??1,roundingMode:t.roundingMode??"halfExpand",roundingPriority:t.roundingPriority??"auto",trailingZeroDisplay:t.trailingZeroDisplay??"auto"};for(let a in t)a in o||(o[a]=t[a]);return o}return d})()({current:{"Date":{"toLocaleString":{},"toLocaleDateString":{}},"DateTimeFormat":{"format":{"92275960":"8:26:08 PM","2030199808":"8:26:08 PM","2180217630":"8:26:08 PM"},"formatRange":{},"formatToParts":{},"formatRangeToParts":{}},"Number":{"toLocaleString":{}},"NumberFormat":{"format":{},"formatRange":{},"formatToParts":{},"formatRangeToParts":{}}}})
+function initTheme() {
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
+    setTheme(AppState.currentTheme);
+}
 
-typeof document<"u"&&(window.process={...window.process,env:{...window.process?.env,NODE_ENV:"production"}});
+function toggleTheme() {
+    const newTheme = AppState.currentTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('portfolio-theme', newTheme);
+}
 
-// External script: https://framerusercontent.com/sites/4elItGVd3wR4FPdpQeq1k6/script_main.BPF2MVNS.mjs
+function setTheme(theme) {
+    AppState.currentTheme = theme;
+    document.body.setAttribute('data-theme', theme);
+    updateThemeUI();
+}
 
-// External script: https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js
+function updateThemeUI() {
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+            icon.className = AppState.currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    }
+}
+
+function initNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                const headerHeight = document.querySelector('.main-header').offsetHeight;
+                const targetPosition = targetSection.offsetTop - headerHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+                
+                updateActiveNavLink(link);
+                if (AppState.isMenuOpen) {
+                    toggleMobileMenu();
+                }
+            }
+        });
+    });
+    
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', updateHeaderOnScroll);
+}
+
+function handleScroll() {
+    const sections = document.querySelectorAll('section[id]');
+    const scrollPosition = window.scrollY + 100;
+    
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            AppState.currentSection = sectionId;
+            updateActiveNavLink(null, sectionId);
+        }
+    });
+}
+
+function updateActiveNavLink(clickedLink, sectionId = null) {
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (clickedLink && link === clickedLink) {
+            link.classList.add('active');
+        } else if (sectionId) {
+            const linkSection = link.getAttribute('data-section');
+            if (linkSection === sectionId) {
+                link.classList.add('active');
+            }
+        }
+    });
+}
+
+function updateHeaderOnScroll() {
+    const header = document.querySelector('.main-header');
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+}
+
+function initScrollEffects() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    const fadeElements = document.querySelectorAll('.fade-in');
+    fadeElements.forEach(element => observer.observe(element));
+    
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => observer.observe(section));
+}
+
+function initFormHandlers() {
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleFormSubmit);
+    }
+}
+
+function handleFormSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    console.log('Form submitted:', data);
+    
+    const message = AppState.currentLang === 'ar' 
+        ? 'تم إرسال الرسالة بنجاح!' 
+        : 'Message sent successfully!';
+    
+    alert(message);
+    e.target.reset();
+}
+
+function initMobileMenu() {
+    const menuToggle = document.getElementById('menuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', toggleMobileMenu);
+    }
+    
+    document.addEventListener('click', (e) => {
+        const navMenu = document.getElementById('navMenu');
+        const menuToggle = document.getElementById('menuToggle');
+        
+        if (AppState.isMenuOpen && 
+            !navMenu.contains(e.target) && 
+            !menuToggle.contains(e.target)) {
+            toggleMobileMenu();
+        }
+    });
+}
+
+function toggleMobileMenu() {
+    AppState.isMenuOpen = !AppState.isMenuOpen;
+    const navMenu = document.getElementById('navMenu');
+    const menuToggle = document.getElementById('menuToggle');
+    
+    if (navMenu) {
+        navMenu.classList.toggle('active', AppState.isMenuOpen);
+    }
+    
+    if (menuToggle) {
+        menuToggle.classList.toggle('active', AppState.isMenuOpen);
+    }
+}
+
+function generateParticles() {
+    const particlesContainer = document.getElementById('particles');
+    if (!particlesContainer) return;
+    
+    const codeSymbols = ['{', '}', '[', ']', '(', ')', '<', '>', '/', '*', '=', '+', '-', ';', ':', '&', '|', '%', '$', '#', '@'];
+    const particleCount = 20;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.textContent = codeSymbols[Math.floor(Math.random() * codeSymbols.length)];
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+        particlesContainer.appendChild(particle);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    generateParticles();
+});
+
+
+
+//--------------animations.js-----------------
+function inView(element, callback, options = {}) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                callback(entry);
+                if (options.once !== false) {
+                    observer.unobserve(entry.target);
+                }
+            }
+        });
+    }, {
+        threshold: options.amount || 0.1,
+        rootMargin: options.rootMargin || '0px'
+    });
+    observer.observe(element);
+    return () => observer.unobserve(element);
+}
+
+function animateElement(element, props, options = {}) {
+    if (typeof anime === 'undefined') return;
+    const animeProps = {};
+    if (props.opacity) animeProps.opacity = props.opacity;
+    if (props.x !== undefined) animeProps.translateX = props.x;
+    if (props.y !== undefined) animeProps.translateY = props.y;
+    if (props.scale) animeProps.scale = props.scale;
+    return anime({
+        targets: element,
+        ...animeProps,
+        duration: (options.duration || 0.8) * 1000,
+        delay: (options.delay || 0) * 1000,
+        easing: options.easing || 'easeOutExpo'
+    });
+}
+
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        initLoaderAnimation();
+    }, 100);
+});
+
+function initLoaderAnimation() {
+    const loader = document.getElementById('loader');
+    const loaderPercent = document.getElementById('loaderPercent');
+    if (!loader || !loaderPercent) return;
+    
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(progressInterval);
+            setTimeout(() => {
+                if (typeof anime !== 'undefined') {
+                    anime({
+                        targets: loader,
+                        opacity: [1, 0],
+                        duration: 500,
+                        easing: 'easeInOutQuad',
+                        complete: () => {
+                            loader.classList.add('hidden');
+                            initPageAnimations();
+                        }
+                    });
+                } else {
+                    loader.classList.add('hidden');
+                    initPageAnimations();
+                }
+            }, 300);
+        }
+        if (loaderPercent) {
+            loaderPercent.textContent = Math.floor(progress) + '%';
+        }
+    }, 100);
+}
+
+function initPageAnimations() {
+    setTimeout(() => {
+        initHeroAnimations();
+        initSkillAnimations();
+        initTimelineAnimations();
+        initProjectAnimations();
+        initScrollAnimations();
+        initContactAnimations();
+        animateStats();
+        initParallax();
+        initSmoothScroll();
+    }, 300);
+}
+
+function initHeroAnimations() {
+    if (typeof anime === 'undefined') return;
+    
+    const heroName = document.getElementById('heroName');
+    if (heroName) {
+        const nameValue = heroName.querySelector('.name-value');
+        if (nameValue) {
+            const originalText = nameValue.textContent;
+            nameValue.textContent = '';
+            anime({
+                targets: { value: 0 },
+                value: originalText.length,
+                duration: 1500,
+                delay: 500,
+                easing: 'easeInOutQuad',
+                update: function(anim) {
+                    const length = Math.floor(anim.animatables[0].target.value);
+                    nameValue.textContent = originalText.substring(0, length);
+                },
+                complete: () => {
+                    const cursor = document.createElement('span');
+                    cursor.className = 'name-cursor';
+                    cursor.textContent = '|';
+                    cursor.style.animation = 'blink 1s infinite';
+                    nameValue.appendChild(cursor);
+                    setTimeout(() => cursor.remove(), 2000);
+                }
+            });
+        }
+    }
+    
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+        anime({
+            targets: heroTitle,
+            opacity: [0, 1],
+            translateX: [-30, 0],
+            delay: 800,
+            duration: 1000,
+            easing: 'easeOutExpo'
+        });
+    }
+    
+    const heroDescription = document.querySelector('.hero-description');
+    if (heroDescription) {
+        anime({
+            targets: heroDescription,
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: 1200,
+            duration: 1000,
+            easing: 'easeOutExpo'
+        });
+    }
+    
+    const heroButtons = document.querySelectorAll('.hero-buttons .btn');
+    if (heroButtons.length > 0) {
+        anime({
+            targets: heroButtons,
+            opacity: [0, 1],
+            scale: [0.8, 1],
+            delay: anime.stagger(100, {start: 1500}),
+            duration: 800,
+            easing: 'easeOutBack'
+        });
+    }
+    
+    const socialIcons = document.querySelectorAll('.hero-social .social-icon');
+    if (socialIcons.length > 0) {
+        anime({
+            targets: socialIcons,
+            opacity: [0, 1],
+            scale: [0, 1],
+            rotate: [180, 0],
+            delay: anime.stagger(100, {start: 2000}),
+            duration: 800,
+            easing: 'easeOutBack'
+        });
+    }
+    
+    const profileImage = document.getElementById('profileImage');
+    if (profileImage) {
+        anime({
+            targets: profileImage,
+            opacity: [0, 1],
+            scale: [0.8, 1],
+            rotate: [180, 0],
+            delay: 1000,
+            duration: 1500,
+            easing: 'easeOutElastic(1, .8)'
+        });
+        
+        profileImage.addEventListener('mouseenter', () => {
+            anime({
+                targets: profileImage,
+                scale: [1, 1.1],
+                rotate: [0, 5],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        });
+        
+        profileImage.addEventListener('mouseleave', () => {
+            anime({
+                targets: profileImage,
+                scale: [1.1, 1],
+                rotate: [5, 0],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        });
+    }
+    
+    const badges = document.querySelectorAll('.floating-badge');
+    if (badges.length > 0) {
+        badges.forEach((badge, index) => {
+            anime({
+                targets: badge,
+                opacity: [0, 1],
+                scale: [0, 1],
+                delay: 1500 + (index * 200),
+                duration: 800,
+                easing: 'easeOutBack'
+            });
+        });
+    }
+}
+
+function initSkillAnimations() {
+    const skillsSection = document.getElementById('skills');
+    if (!skillsSection) return;
+    
+    const skillItems = skillsSection.querySelectorAll('.skill-item');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const skillItem = entry.target;
+                const progressBar = skillItem.querySelector('.skill-progress');
+                const percentElement = skillItem.querySelector('.skill-percent');
+                const percent = parseInt(skillItem.getAttribute('data-percent') || 0);
+                
+                if (progressBar && typeof anime !== 'undefined') {
+                    anime({
+                        targets: progressBar,
+                        width: ['0%', percent + '%'],
+                        duration: 2000,
+                        easing: 'easeOutExpo',
+                        delay: 300
+                    });
+                    
+                    anime({
+                        targets: { value: 0 },
+                        value: percent,
+                        duration: 2000,
+                        easing: 'easeOutExpo',
+                        delay: 300,
+                        update: function(anim) {
+                            if (percentElement) {
+                                percentElement.textContent = Math.floor(anim.animatables[0].target.value) + '%';
+                            }
+                        }
+                    });
+                }
+                observer.unobserve(skillItem);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    skillItems.forEach(item => observer.observe(item));
+}
+
+function initTimelineAnimations() {
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    timelineItems.forEach((item, index) => {
+        inView(item, () => {
+            if (typeof anime !== 'undefined') {
+                anime({
+                    targets: item,
+                    opacity: [0, 1],
+                    translateX: [-50, 0],
+                    delay: index * 150,
+                    duration: 1000,
+                    easing: 'easeOutExpo'
+                });
+            } else {
+                animateElement(item, { opacity: [0, 1], x: [-50, 0] }, { duration: 0.8, delay: index * 0.1 });
+            }
+        }, { amount: 0.3 });
+    });
+}
+
+function initProjectAnimations() {
+    const projectCards = document.querySelectorAll('.project-card');
+    projectCards.forEach((card, index) => {
+        inView(card, () => {
+            if (typeof anime !== 'undefined') {
+                anime({
+                    targets: card,
+                    opacity: [0, 1],
+                    translateY: [50, 0],
+                    scale: [0.9, 1],
+                    delay: index * 100,
+                    duration: 1000,
+                    easing: 'easeOutExpo'
+                });
+            } else {
+                animateElement(card, { opacity: [0, 1], y: [50, 0], scale: [0.9, 1] }, { duration: 0.8, delay: index * 0.1 });
+            }
+        }, { amount: 0.2 });
+        
+        card.addEventListener('mouseenter', () => {
+            if (typeof anime !== 'undefined') {
+                anime({ targets: card, scale: [1, 1.02], duration: 300, easing: 'easeOutQuad' });
+            }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            if (typeof anime !== 'undefined') {
+                anime({ targets: card, scale: [1.02, 1], duration: 300, easing: 'easeOutQuad' });
+            }
+        });
+    });
+}
+
+function initScrollAnimations() {
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        inView(section, () => {
+            const sectionHeader = section.querySelector('.section-header');
+            if (sectionHeader && typeof anime !== 'undefined') {
+                anime({
+                    targets: sectionHeader,
+                    opacity: [0, 1],
+                    translateY: [-20, 0],
+                    duration: 600,
+                    easing: 'easeOutExpo'
+                });
+            }
+        }, { amount: 0.2 });
+    });
+    
+    const cards = document.querySelectorAll('.card, .project-card, .contact-item');
+    cards.forEach((card, index) => {
+        inView(card, () => {
+            if (typeof anime !== 'undefined') {
+                anime({
+                    targets: card,
+                    opacity: [0, 1],
+                    translateY: [30, 0],
+                    delay: index * 30,
+                    duration: 500,
+                    easing: 'easeOutExpo'
+                });
+            } else {
+                animateElement(card, { opacity: [0, 1], y: [50, 0] }, { duration: 0.6, delay: index * 0.05 });
+            }
+        }, { amount: 0.2 });
+    });
+}
+
+function animateStats() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(stat => {
+        const target = parseInt(stat.getAttribute('data-count') || 0);
+        inView(stat, () => {
+            if (typeof anime !== 'undefined') {
+                anime({
+                    targets: { value: 0 },
+                    value: target,
+                    duration: 2000,
+                    easing: 'easeOutExpo',
+                    update: function(anim) {
+                        stat.textContent = Math.floor(anim.animatables[0].target.value);
+                    }
+                });
+            }
+        }, { amount: 0.5 });
+    });
+}
+
+function initContactAnimations() {
+    const contactItems = document.querySelectorAll('.contact-item');
+    contactItems.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            if (typeof anime !== 'undefined') {
+                anime({ targets: item, scale: [1, 1.02], duration: 200, easing: 'easeOutQuad' });
+            }
+        });
+        item.addEventListener('mouseleave', () => {
+            if (typeof anime !== 'undefined') {
+                anime({ targets: item, scale: [1.02, 1], duration: 200, easing: 'easeOutQuad' });
+            }
+        });
+    });
+}
+
+function initParallax() {
+    const profileImage = document.getElementById('profileImage');
+    if (!profileImage) return;
+    
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const scrolled = window.pageYOffset;
+                const parallaxSpeed = 0.3;
+                const maxOffset = 100;
+                const offset = Math.min(scrolled * parallaxSpeed, maxOffset);
+                
+                if (profileImage) {
+                    profileImage.style.transform = `translateY(${offset}px)`;
+                }
+                
+                const gridBg = document.querySelector('.code-grid-bg');
+                if (gridBg) {
+                    gridBg.style.transform = `translateY(${scrolled * 0.2}px)`;
+                }
+                
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+}
+
+function initSmoothScroll() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                const headerHeight = document.querySelector('.main-header').offsetHeight;
+                const targetPosition = targetSection.offsetTop - headerHeight;
+                
+                if (typeof anime !== 'undefined') {
+                    anime({
+                        targets: window,
+                        scrollTop: targetPosition,
+                        duration: 800,
+                        easing: 'easeInOutQuad'
+                    });
+                } else {
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
+    
+    let currentSection = '';
+    window.addEventListener('scroll', () => {
+        const scrollPos = window.scrollY + 150;
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+            
+            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                if (currentSection !== sectionId) {
+                    currentSection = sectionId;
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            }
+        });
+    });
+}
+
+window.Animations = {
+    initParallax,
+    initSmoothScroll
+};
